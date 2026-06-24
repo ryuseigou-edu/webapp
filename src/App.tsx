@@ -102,7 +102,7 @@ export default function AppContainer() {
           maintenanceCompany: '株式会社システム保守A',
           inHoursContact: '03-XXXX-0001 (平日09:00-18:00)',
           outOfHoursContact: '090-XXXX-0001 (夜間・休日)',
-          isContactFailed: true,
+          isContactFailed: true, // 督促アラート表示ルート通過
           failedAttemptTime: '2026-06-18 10:30',
         },
         {
@@ -112,11 +112,14 @@ export default function AppContainer() {
           maintenanceCompany: 'Bネットワークス株式会社',
           inHoursContact: '03-XXXX-0002 (24時間受付)',
           outOfHoursContact: '03-XXXX-0002 (24時間受付)',
-          isContactFailed: false,
+          isContactFailed: false, // 連絡未試行または成功ルート通過
           failedAttemptTime: null,
         }
       ]
     },
+
+    // パターン2: 単一機器・WARNING・連絡未失敗（基本フローの検証用）
+    // 判定ルート: status === '障害発生中' 且つ isContactFailed === false
     {
       id: 'F-20260618-002',
       status: '障害発生中',
@@ -130,6 +133,58 @@ export default function AppContainer() {
           maintenanceCompany: 'Bネットワークス株式会社',
           inHoursContact: '03-XXXX-0002 (24時間受付)',
           outOfHoursContact: '03-XXXX-0002 (24時間受付)',
+          isContactFailed: false,
+          failedAttemptTime: null,
+        }
+      ]
+    },
+
+    // パターン3: 単一機器・保守対応中（ステータス絞り込みの検証用）
+    // 判定ルート: status === '保守対応中' (「連絡失敗を記録」ボタンが非表示となるルート)
+    {
+      id: 'F-20260618-003',
+      status: '保守対応中',
+      severity: 'WARNING',
+      description: '外部メール連携APIの応答遅延。保守会社がリモートログ解析を実施中。',
+      products: [
+        {
+          productId: 'P-SVR-005',
+          productName: 'メールゲートウェイアプリケーション',
+          serialNumber: 'SN-MS-7741',
+          maintenanceCompany: '株式会社セキュリティC',
+          inHoursContact: '03-XXXX-0003 (平日09:00-17:30)',
+          outOfHoursContact: '090-XXXX-0003 (緊急受付窓口)',
+          isContactFailed: false,
+          failedAttemptTime: null,
+        }
+      ]
+    },
+
+    // パターン4: 複数機器・復旧済み（ステータス絞り込みおよび過去ログ照会の検証用）
+    // 判定ルート: status === '復旧済み' (「連絡失敗を記録」ボタンが非表示となるルート)
+    {
+      id: 'F-20260617-099',
+      status: '復旧済み',
+      severity: 'INFO',
+      description: 'ストレージ容量枯渇の予兆検知。不要ログの削除およびパーティション拡張作業完了。',
+      products: [
+        {
+          productId: 'P-STG-011',
+          productName: 'SANストレージ筐体A',
+          serialNumber: 'SN-EMC-1102',
+          maintenanceCompany: '株式会社システム保守A',
+          inHoursContact: '03-XXXX-0001 (平日09:00-18:00)',
+          outOfHoursContact: '090-XXXX-0001 (夜間・休日)',
+          isContactFailed: false,
+          failedAttemptTime: null,
+        },
+        {
+          productId: 'P-SVR-022',
+          productName: 'ログ解析用仮想ホスト',
+          serialNumber: 'SN-VM-3344',
+          maintenanceCompany: '株式会社システム保守A',
+          inHoursContact: '03-XXXX-0001 (平日09:00-18:00)',
+          outOfHoursContact: '090-XXXX-0001 (夜間・休日)',
           isContactFailed: false,
           failedAttemptTime: null,
         }
