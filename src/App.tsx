@@ -13,13 +13,16 @@ import {
   FiGrid,
   FiBell,
   FiSearch,
-  FiServer
+  FiServer,
+  FiPlus,
+  FiTool,
+  FiX
 } from 'react-icons/fi';
 
 // ==========================================
 // 1. 共通アイコン描画用ラッパー
 // ==========================================
-type IconName = 'fault' | 'product' | 'company' | 'phone' | 'log' | 'menu' | 'estimate' | 'contract' | 'database' | 'arrow-right' | 'dashboard' | 'bell' | 'search' | 'server';
+type IconName = 'fault' | 'product' | 'company' | 'phone' | 'log' | 'menu' | 'estimate' | 'contract' | 'database' | 'arrow-right' | 'dashboard' | 'bell' | 'search' | 'server' | 'plus' | 'tool' | 'close';
 
 interface IconProps {
   name: IconName;
@@ -41,7 +44,10 @@ const IconWrapper: React.FC<IconProps> = ({ name, className = "" }) => {
     dashboard: <FiGrid className={className} />,
     bell: <FiBell className={className} />,
     search: <FiSearch className={className} />,
-    server: <FiServer className={className} />
+    server: <FiServer className={className} />,
+    plus: <FiPlus className={className} />,
+    tool: <FiTool className={className} />,
+    close: <FiX className={className} />
   };
   return <>{icons[name]}</>;
 };
@@ -90,7 +96,7 @@ interface ModernTroubleSearchProps {
 }
 
 // ==========================================
-// 3. メイン親コンポーネント (アプリ全体の枠組み)
+// 3. メイン親コンポーネント
 // ==========================================
 export default function AppContainer() {
   const [currentScreen, setCurrentScreen] = useState<string>('portal');
@@ -111,7 +117,7 @@ export default function AppContainer() {
           inHoursContact: '03-XXXX-0001 (平日09:00-18:00)',
           outOfHoursContact: '090-XXXX-0001 (夜間・休日)',
           isContactFailed: true, // 督促アラート表示ルート通過
-          failedAttemptTime: '2026-06-18 10:30',
+          failedAttemptTime: '2026/7/3 11:29:45',
         },
         {
           productId: 'P-SW-042',
@@ -207,7 +213,7 @@ export default function AppContainer() {
   return (
       <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden">
 
-        {/* サイドバー */}
+        {/* 側面操作領域（サイドバー） */}
         <aside className={`${isSidebarOpen ? 'w-64' : 'w-20'} transition-all duration-300 bg-white border-r border-slate-200 flex flex-col z-20`}>
           <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200">
             {isSidebarOpen && <span className="font-black text-xl tracking-tight text-slate-800">SYS<span className="text-blue-600">ADMIN</span></span>}
@@ -225,7 +231,7 @@ export default function AppContainer() {
           </nav>
         </aside>
 
-        {/* メインビュー */}
+        {/* 主表示領域（メインビュー） */}
         <main className="flex-1 flex flex-col h-full relative overflow-hidden">
           <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 z-10">
             <div className="flex items-center bg-slate-100 rounded-lg px-3 py-1.5 w-64 border border-slate-200 focus-within:border-blue-400 transition-colors">
@@ -240,7 +246,7 @@ export default function AppContainer() {
             </div>
           </header>
 
-          <div className="flex-1 overflow-y-auto p-8">
+          <div className="flex-1 overflow-y-auto p-8 relative">
             <div className="max-w-7xl mx-auto">
               {currentScreen === 'portal' && (
                   <PortalDashboard onNavigate={setCurrentScreen} activeFaultsCount={activeFaultsCount} />
@@ -329,15 +335,25 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ onNavigate, activeFau
 };
 
 // ==========================================
-// 5. 障害対応画面 (連絡先動的強調表示版)
+// 5. 障害対応画面 (状態によるボタン表示制御版)
 // ==========================================
 const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFaults }) => {
   const [searchId, setSearchId] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('すべて');
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
+  // ダイアログ画面の状態管理
+  const [isRegisterModalOpen, setRegisterModalOpen] = useState<boolean>(false);
+  const [activeResultModalFault, setActiveResultModalFault] = useState<string | null>(null);
+  const [activeReportModalFault, setActiveReportModalFault] = useState<string | null>(null);
+
+  // 保守結果記録入力欄用の状態
+  const [recoveryStatus, setRecoveryStatus] = useState<string>('保守対応中');
+
+  // 復旧報告書作成入力欄用の状態
+  const [reportMethod, setReportMethod] = useState<string>('印刷');
+
   useEffect(() => {
-    // NodeJSのタイマーと混同しないよう window.setInterval を明示
     const timer = window.setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
@@ -394,16 +410,26 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
 
   return (
       <div className="animate-in slide-in-from-right-4 duration-300 space-y-8">
+        {/* 画面表題および操作領域 */}
         <div className="flex justify-between items-end">
           <div>
             <h1 className="text-3xl font-extrabold tracking-tighter text-slate-800">障害対応管理</h1>
             <p className="text-sm text-slate-500 mt-1">障害関連製品の特定および連絡先一括照会</p>
           </div>
-          <div className="text-xs bg-slate-200 border border-slate-300 rounded-lg px-3 py-1.5 font-medium text-slate-700">
-            判定基準時刻: {currentTime.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
-            <span className={`ml-2 inline-block px-2 py-0.5 rounded text-white font-bold ${isInHours ? 'bg-emerald-600' : 'bg-blue-600'}`}>
-            {isInHours ? '現在時間内' : '現在時間外'}
-          </span>
+          <div className="flex items-center gap-4">
+            <div className="text-xs bg-slate-200 border border-slate-300 rounded-lg px-3 py-2 font-medium text-slate-700">
+              判定基準時刻: {currentTime.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+              <span className={`ml-2 inline-block px-2 py-0.5 rounded text-white font-bold ${isInHours ? 'bg-emerald-600' : 'bg-blue-600'}`}>
+                {isInHours ? '現在時間内' : '現在時間外'}
+              </span>
+            </div>
+            {/* 障害情報の登録画面の呼び出しボタン */}
+            <button
+                onClick={() => setRegisterModalOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-md flex items-center gap-2 transition"
+            >
+              <IconWrapper name="plus" className="w-4 h-4" /> 障害情報の登録
+            </button>
           </div>
         </div>
 
@@ -426,6 +452,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
             </div>
         )}
 
+        {/* 検索・絞り込み */}
         <div className="bg-white p-4 rounded-2xl flex gap-4 items-center border border-slate-200 shadow-sm">
           <div className="flex-1 relative">
             <input
@@ -443,7 +470,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="すべて">全ステータス</option>
+              <option value="すべて">全状態</option>
               <option value="障害発生中">障害発生中</option>
               <option value="保守対応中">保守対応中</option>
               <option value="復旧済み">復旧済み</option>
@@ -451,6 +478,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
           </div>
         </div>
 
+        {/* 障害対応一覧 */}
         <div className="space-y-6">
           {filteredFaults.map((fault) => (
               <div key={fault.id} className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col gap-6">
@@ -463,18 +491,47 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                     </div>
                     <p className="text-sm text-slate-600">{fault.description}</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                <span className={`text-m   px-4 py-2 rounded-full font-semibold border ${fault.status === '障害発生中' ? 'bg-red-50 text-red-600 border-red-200' : fault.status === '復旧済み' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>
+                  <div className="flex items-center gap-2">
+                <span className={`text-xs px-3 py-1 rounded-full font-semibold border ${fault.status === '障害発生中' ? 'bg-red-50 text-red-600 border-red-200' : fault.status === '復旧済み' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>
                   {fault.status}
                 </span>
-                    <button className="p-2.5 bg-slate-100 rounded-xl text-slate-600 hover:text-blue-700 hover:bg-blue-50 transition border border-slate-200 shadow-sm" title="進捗管理情報の作成要求">
+
+                    {/* 各種操作ボタン群（状態による表示制御） */}
+
+                    {/* 障害発生中 または 保守対応中 の場合に表示 */}
+                    {(fault.status === '障害発生中' || fault.status === '保守対応中') && (
+                        <button
+                            onClick={() => setActiveResultModalFault(fault.id)}
+                            className="p-2.5 bg-slate-100 rounded-xl text-slate-600 hover:text-blue-700 hover:bg-blue-50 transition border border-slate-200 shadow-sm ml-2"
+                            title="保守結果の記録"
+                        >
+                          <IconWrapper name="tool" className="w-4 h-4" />
+                        </button>
+                    )}
+
+                    {/* 復旧済み の場合に表示 */}
+                    {fault.status === '復旧済み' && (
+                        <button
+                            onClick={() => setActiveReportModalFault(fault.id)}
+                            className="p-2.5 bg-slate-100 rounded-xl text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 transition border border-slate-200 shadow-sm ml-2"
+                            title="復旧報告書の作成"
+                        >
+                          <IconWrapper name="estimate" className="w-4 h-4" />
+                        </button>
+                    )}
+
+                    {/* 常に表示 */}
+                    <button
+                        className="p-2.5 bg-slate-100 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition border border-slate-200 shadow-sm ml-2"
+                        title="進捗管理情報の編集"
+                    >
                       <IconWrapper name="log" className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider flex items-center gap-1.5">
+                  <div className="text-xs font-bold text-slate-500 mb-3 tracking-wider flex items-center gap-1.5">
                     <IconWrapper name="server" className="text-blue-500 w-4 h-4" /> 影響・関連対象製品 ({fault.products.length}台)
                   </div>
 
@@ -500,7 +557,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                                         ? 'bg-emerald-50/60 border-emerald-300 text-emerald-900 font-bold ring-1 ring-emerald-300'
                                         : 'bg-white border-slate-200 text-slate-500 opacity-60'
                                 }`}>
-                                  <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded mr-2 ${isInHours ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>時間内</span>
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded mr-2 ${isInHours ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}`}>時間内</span>
                                   {product.inHoursContact}
                                 </div>
 
@@ -509,7 +566,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                                         ? 'bg-blue-50/60 border-blue-300 text-blue-900 font-bold ring-1 ring-blue-300'
                                         : 'bg-white border-slate-200 text-slate-500 opacity-60'
                                 }`}>
-                                  <span className={`text-[10px] uppercase px-1.5 py-0.5 rounded mr-2 ${!isInHours ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'}`}>時間外</span>
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded mr-2 ${!isInHours ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-600'}`}>時間外</span>
                                   {product.outOfHoursContact}
                                 </div>
                               </div>
@@ -533,10 +590,235 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                     ))}
                   </div>
                 </div>
-
               </div>
           ))}
         </div>
+
+        {/* ==========================================
+          ダイアログ画面の定義領域
+         ========================================== */}
+
+        {/* 障害情報の登録画面ダイアログ */}
+        {isRegisterModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div className="sticky top-0 bg-white border-b border-slate-200 p-5 flex justify-between items-center z-10">
+                  <h2 className="text-xl font-bold text-slate-800">障害情報の登録</h2>
+                  <button onClick={() => setRegisterModalOpen(false)} className="text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full">
+                    <IconWrapper name="close" className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6 space-y-6">
+
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
+                    通信処理等の結果メッセージ表示領域
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">障害ID</label>
+                      <input type="text" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="自動採番" disabled />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">現在の状態</label>
+                      <input type="text" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-slate-100 text-slate-600 font-bold" value="障害発生中" disabled />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">発生日時</label>
+                      <input type="datetime-local" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">発見者</label>
+                      <input type="text" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">発生状況</label>
+                    <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-20 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">初期調査内容</label>
+                    <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-20 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">障害機器特定</label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 text-sm"><input type="radio" name="deviceIdentified" value="特定" className="w-4 h-4 text-blue-600" defaultChecked /> 特定</label>
+                        <label className="flex items-center gap-2 text-sm"><input type="radio" name="deviceIdentified" value="特定できない" className="w-4 h-4 text-blue-600" /> 特定できない</label>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">原因特定情報</label>
+                      <div className="flex gap-4">
+                        <label className="flex items-center gap-2 text-sm"><input type="radio" name="causeIdentified" value="特定あり" className="w-4 h-4 text-blue-600" defaultChecked /> 特定あり</label>
+                        <label className="flex items-center gap-2 text-sm"><input type="radio" name="causeIdentified" value="特定なし" className="w-4 h-4 text-blue-600" /> 特定なし</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">保守会社相談内容</label>
+                    <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-20 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">原因</label>
+                      <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-20 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">原因不明理由</label>
+                      <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-20 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">進捗内容</label>
+                    <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-20 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">通知先</label>
+                    <div className="flex gap-6">
+                      <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="w-4 h-4 text-blue-600 rounded" /> 営業部</label>
+                      <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="w-4 h-4 text-blue-600 rounded" /> 技術部</label>
+                      <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="w-4 h-4 text-blue-600 rounded" /> 保守会社</label>
+                    </div>
+                  </div>
+
+                  <div className="text-right text-xs text-slate-400">最終更新日時: - (自動更新)</div>
+
+                </div>
+                <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 p-5 flex justify-end gap-3">
+                  <button onClick={() => setRegisterModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition">取り消し</button>
+                  <button onClick={() => setRegisterModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow transition">登録</button>
+                </div>
+              </div>
+            </div>
+        )}
+
+        {/* 保守結果記録ダイアログ */}
+        {activeResultModalFault && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl">
+                <div className="border-b border-slate-200 p-5 flex justify-between items-center">
+                  <h2 className="text-xl font-bold text-slate-800">保守結果記録</h2>
+                  <button onClick={() => setActiveResultModalFault(null)} className="text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full">
+                    <IconWrapper name="close" className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6 space-y-6">
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">障害ID</label>
+                    <div className="font-mono font-bold text-lg text-slate-900">{activeResultModalFault}</div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">作業日時</label>
+                    <div className="flex items-center gap-2">
+                      <input type="datetime-local" className="flex-1 border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+                      <span className="text-slate-400">～</span>
+                      <input type="datetime-local" className="flex-1 border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">作業者</label>
+                    <input type="text" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">作業内容</label>
+                    <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-24 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">進捗状況</label>
+                    <div className="flex gap-6">
+                      <label className="flex items-center gap-2 text-sm"><input type="radio" name="status" value="保守対応中" checked={recoveryStatus === '保守対応中'} onChange={(e) => setRecoveryStatus(e.target.value)} className="w-4 h-4 text-blue-600" /> 保守対応中</label>
+                      <label className="flex items-center gap-2 text-sm"><input type="radio" name="status" value="完了" checked={recoveryStatus === '完了'} onChange={(e) => setRecoveryStatus(e.target.value)} className="w-4 h-4 text-emerald-600" /> 完了</label>
+                      <label className="flex items-center gap-2 text-sm"><input type="radio" name="status" value="未回復" checked={recoveryStatus === '未回復'} onChange={(e) => setRecoveryStatus(e.target.value)} className="w-4 h-4 text-red-600" /> 未回復</label>
+                    </div>
+                  </div>
+
+                  {recoveryStatus === '未回復' && (
+                      <div className="animate-in fade-in duration-300">
+                        <label className="block text-sm font-bold text-red-700 mb-1">未回復理由</label>
+                        <textarea className="w-full border border-red-300 bg-red-50 rounded-lg p-2.5 text-sm h-24 focus:ring-2 focus:ring-red-400 focus:outline-none"></textarea>
+                      </div>
+                  )}
+
+                </div>
+                <div className="bg-slate-50 border-t border-slate-200 p-5 flex justify-end gap-3 rounded-b-2xl">
+                  <button onClick={() => setActiveResultModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition">取り消し</button>
+                  <button onClick={() => setActiveResultModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow transition">完了</button>
+                </div>
+              </div>
+            </div>
+        )}
+
+        {/* 復旧報告書作成ダイアログ */}
+        {activeReportModalFault && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl">
+                <div className="border-b border-slate-200 p-5 flex justify-between items-center">
+                  <h2 className="text-xl font-bold text-slate-800">復旧報告書作成</h2>
+                  <button onClick={() => setActiveReportModalFault(null)} className="text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full">
+                    <IconWrapper name="close" className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6 space-y-6">
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">障害ID</label>
+                      <div className="font-mono font-bold text-slate-900">{activeReportModalFault}</div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">製品ID</label>
+                      <div className="font-mono text-sm text-slate-600">P-DB-001, P-SW-042</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">報告内容</label>
+                    <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-32 bg-slate-50 text-slate-600 focus:ring-2 focus:ring-blue-400 focus:outline-none" defaultValue="保守結果から自動入力される領域です。"></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-1">特記事項</label>
+                    <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-20 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">作成方法</label>
+                    <div className="flex gap-6">
+                      <label className="flex items-center gap-2 text-sm"><input type="radio" name="reportMethod" value="印刷" checked={reportMethod === '印刷'} onChange={(e) => setReportMethod(e.target.value)} className="w-4 h-4 text-blue-600" /> 印刷</label>
+                      <label className="flex items-center gap-2 text-sm"><input type="radio" name="reportMethod" value="電子メール" checked={reportMethod === '電子メール'} onChange={(e) => setReportMethod(e.target.value)} className="w-4 h-4 text-blue-600" /> 電子メール</label>
+                    </div>
+                  </div>
+
+                  {reportMethod === '電子メール' && (
+                      <div className="animate-in fade-in duration-300">
+                        <label className="block text-sm font-bold text-slate-700 mb-1">メール内容</label>
+                        <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-32 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
+                      </div>
+                  )}
+
+                </div>
+                <div className="bg-slate-50 border-t border-slate-200 p-5 flex justify-end gap-3 rounded-b-2xl">
+                  <button onClick={() => setActiveReportModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition">取り消し</button>
+                  <button onClick={() => setActiveReportModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow transition">完了</button>
+                </div>
+              </div>
+            </div>
+        )}
+
       </div>
   );
 };
