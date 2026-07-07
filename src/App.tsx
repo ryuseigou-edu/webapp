@@ -53,6 +53,70 @@ const IconWrapper: React.FC<IconProps> = ({ name, className = "" }) => {
 };
 
 // ==========================================
+// 1-2. 共通ダイアログ（右サイドドロワー）
+// ==========================================
+interface SlideOverProps {
+  title: string;
+  subtitle?: string;
+  icon?: IconName;
+  onClose: () => void;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+  widthClass?: string;
+}
+
+const SlideOver: React.FC<SlideOverProps> = ({ title, subtitle, icon, onClose, children, footer, widthClass = 'max-w-xl' }) => {
+  // ESCキーでの閉包、および背景スクロールの抑止
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  return (
+      <div className="fixed inset-0 z-50 flex justify-end">
+        {/* 背景マスク（滑らかにフェードイン） */}
+        <div
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-md animate-in fade-in duration-300"
+        />
+
+        {/* 本体パネル（右からスライドイン・常に本文がスクロール可能） */}
+        <div className={`relative h-full w-full ${widthClass} bg-slate-50 shadow-2xl flex flex-col animate-in slide-in-drawer duration-300`}>
+          <div className="flex-shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              {icon && (
+                  <div className="bg-blue-50 text-blue-600 p-2.5 rounded-xl">
+                    <IconWrapper name={icon} className="w-5 h-5" />
+                  </div>
+              )}
+              <div>
+                <h2 className="text-lg font-bold text-slate-800 leading-tight">{title}</h2>
+                {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+              </div>
+            </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 p-2 rounded-full transition" aria-label="閉じる">
+              <IconWrapper name="close" className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+            {children}
+          </div>
+
+          {footer && (
+              <div className="flex-shrink-0 bg-white border-t border-slate-200 px-6 py-4 flex justify-end gap-3">
+                {footer}
+              </div>
+          )}
+        </div>
+      </div>
+  );
+};
+
+// ==========================================
 // 2. 型定義
 // ==========================================
 interface InvolvedProduct {
@@ -600,17 +664,20 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
 
         {/* 障害情報の登録画面ダイアログ */}
         {isRegisterModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                <div className="sticky top-0 bg-white border-b border-slate-200 p-5 flex justify-between items-center z-10">
-                  <h2 className="text-xl font-bold text-slate-800">障害情報の登録</h2>
-                  <button onClick={() => setRegisterModalOpen(false)} className="text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full">
-                    <IconWrapper name="close" className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="p-6 space-y-6">
-
-                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
+            <SlideOver
+                title="障害情報の登録"
+                subtitle="新規障害の受付・初期情報の記録"
+                icon="plus"
+                widthClass="max-w-2xl"
+                onClose={() => setRegisterModalOpen(false)}
+                footer={
+                  <>
+                    <button onClick={() => setRegisterModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition">取り消し</button>
+                    <button onClick={() => setRegisterModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition">登録</button>
+                  </>
+                }
+            >
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                     通信処理等の結果メッセージ表示領域
                   </div>
 
@@ -691,28 +758,23 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                   </div>
 
                   <div className="text-right text-xs text-slate-400">最終更新日時: - (自動更新)</div>
-
-                </div>
-                <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 p-5 flex justify-end gap-3">
-                  <button onClick={() => setRegisterModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition">取り消し</button>
-                  <button onClick={() => setRegisterModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow transition">登録</button>
-                </div>
-              </div>
-            </div>
+            </SlideOver>
         )}
 
         {/* 保守結果記録ダイアログ */}
         {activeResultModalFault && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl">
-                <div className="border-b border-slate-200 p-5 flex justify-between items-center">
-                  <h2 className="text-xl font-bold text-slate-800">保守結果記録</h2>
-                  <button onClick={() => setActiveResultModalFault(null)} className="text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full">
-                    <IconWrapper name="close" className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="p-6 space-y-6">
-
+            <SlideOver
+                title="保守結果記録"
+                subtitle="作業実績・進捗状況の記録"
+                icon="tool"
+                onClose={() => setActiveResultModalFault(null)}
+                footer={
+                  <>
+                    <button onClick={() => setActiveResultModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition">取り消し</button>
+                    <button onClick={() => setActiveResultModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition">完了</button>
+                  </>
+                }
+            >
                   <div>
                     <label className="block text-sm font-bold text-slate-700 mb-1">障害ID</label>
                     <div className="font-mono font-bold text-lg text-slate-900">{activeResultModalFault}</div>
@@ -752,28 +814,23 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                         <textarea className="w-full border border-red-300 bg-red-50 rounded-lg p-2.5 text-sm h-24 focus:ring-2 focus:ring-red-400 focus:outline-none"></textarea>
                       </div>
                   )}
-
-                </div>
-                <div className="bg-slate-50 border-t border-slate-200 p-5 flex justify-end gap-3 rounded-b-2xl">
-                  <button onClick={() => setActiveResultModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition">取り消し</button>
-                  <button onClick={() => setActiveResultModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow transition">完了</button>
-                </div>
-              </div>
-            </div>
+            </SlideOver>
         )}
 
         {/* 復旧報告書作成ダイアログ */}
         {activeReportModalFault && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-              <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl">
-                <div className="border-b border-slate-200 p-5 flex justify-between items-center">
-                  <h2 className="text-xl font-bold text-slate-800">復旧報告書作成</h2>
-                  <button onClick={() => setActiveReportModalFault(null)} className="text-slate-400 hover:text-slate-700 bg-slate-100 p-2 rounded-full">
-                    <IconWrapper name="close" className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="p-6 space-y-6">
-
+            <SlideOver
+                title="復旧報告書作成"
+                subtitle="復旧内容の報告書出力・送付"
+                icon="estimate"
+                onClose={() => setActiveReportModalFault(null)}
+                footer={
+                  <>
+                    <button onClick={() => setActiveReportModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 rounded-lg transition">取り消し</button>
+                    <button onClick={() => setActiveReportModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition">完了</button>
+                  </>
+                }
+            >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-1">障害ID</label>
@@ -809,14 +866,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                         <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-32 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
                       </div>
                   )}
-
-                </div>
-                <div className="bg-slate-50 border-t border-slate-200 p-5 flex justify-end gap-3 rounded-b-2xl">
-                  <button onClick={() => setActiveReportModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-200 rounded-lg transition">取り消し</button>
-                  <button onClick={() => setActiveReportModalFault(null)} className="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow transition">完了</button>
-                </div>
-              </div>
-            </div>
+            </SlideOver>
         )}
 
       </div>

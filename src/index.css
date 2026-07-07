@@ -45,6 +45,12 @@
   .slide-in-from-right-4 {
     animation-name: slideInRight;
   }
+
+  /* ダイアログ（右サイドドロワー）用の全幅スライドイン */
+  .slide-in-drawer {
+    animation-name: slideInDrawer;
+    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
 }
 
 @keyframes fadeIn {
@@ -55,4 +61,9 @@
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(1rem); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInDrawer {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
