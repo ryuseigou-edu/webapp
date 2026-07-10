@@ -85,7 +85,7 @@ const SlideOver: React.FC<SlideOverProps> = ({ title, subtitle, icon, onClose, c
 
         {/* 本体パネル（右からスライドイン・常に本文がスクロール可能） */}
         <div className={`relative h-full w-full ${widthClass} bg-slate-50 shadow-2xl flex flex-col animate-in slide-in-drawer duration-300`}>
-          <div className="flex-shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center">
+          <div className="shrink-0 bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
               {icon && (
                   <div className="bg-blue-50 text-blue-600 p-2.5 rounded-xl">
@@ -107,7 +107,7 @@ const SlideOver: React.FC<SlideOverProps> = ({ title, subtitle, icon, onClose, c
           </div>
 
           {footer && (
-              <div className="flex-shrink-0 bg-white border-t border-slate-200 px-6 py-4 flex justify-end gap-3">
+              <div className="shrink-0 bg-white border-t border-slate-200 px-6 py-4 flex justify-end gap-3">
                 {footer}
               </div>
           )}
