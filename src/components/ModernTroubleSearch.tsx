@@ -270,7 +270,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                         通信処理等の結果メッセージ表示領域
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-6 text-black">
                         <div>
                             <label className="block text-sm font-bold text-slate-700 mb-1">障害ID</label>
                             <input type="text" className="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" placeholder="自動採番" disabled />
@@ -299,7 +299,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
                         <textarea className="w-full border border-slate-300 rounded-lg p-2.5 text-sm h-20 focus:ring-2 focus:ring-blue-400 focus:outline-none"></textarea>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-6 text-slate-700">
                         <div>
                             <label className="block text-sm font-bold text-slate-700 mb-2">障害機器特定</label>
                             <div className="flex gap-4">
@@ -339,7 +339,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 mb-2">通知先</label>
-                        <div className="flex gap-6">
+                        <div className="flex gap-6 text-slate-700">
                             <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="w-4 h-4 text-blue-600 rounded" /> 営業部</label>
                             <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="w-4 h-4 text-blue-600 rounded" /> 技術部</label>
                             <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="w-4 h-4 text-blue-600 rounded" /> 保守会社</label>
@@ -370,7 +370,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 mb-1">作業日時</label>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 text-black">
                             <input type="datetime-local" className="flex-1 border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" />
                             <span className="text-slate-400">～</span>
                             <input type="datetime-local" className="flex-1 border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none" />
@@ -389,7 +389,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 mb-2">進捗状況</label>
-                        <div className="flex gap-6">
+                        <div className="flex gap-6 text-slate-700">
                             <label className="flex items-center gap-2 text-sm"><input type="radio" name="status" value="保守対応中" checked={recoveryStatus === '保守対応中'} onChange={(e) => setRecoveryStatus(e.target.value)} className="w-4 h-4 text-blue-600" /> 保守対応中</label>
                             <label className="flex items-center gap-2 text-sm"><input type="radio" name="status" value="完了" checked={recoveryStatus === '完了'} onChange={(e) => setRecoveryStatus(e.target.value)} className="w-4 h-4 text-emerald-600" /> 完了</label>
                             <label className="flex items-center gap-2 text-sm"><input type="radio" name="status" value="未回復" checked={recoveryStatus === '未回復'} onChange={(e) => setRecoveryStatus(e.target.value)} className="w-4 h-4 text-red-600" /> 未回復</label>
@@ -441,7 +441,7 @@ const ModernTroubleSearch: React.FC<ModernTroubleSearchProps> = ({ faults, setFa
 
                     <div>
                         <label className="block text-sm font-bold text-slate-700 mb-2">作成方法</label>
-                        <div className="flex gap-6">
+                        <div className="flex gap-6 text-slate-700">
                             <label className="flex items-center gap-2 text-sm"><input type="radio" name="reportMethod" value="印刷" checked={reportMethod === '印刷'} onChange={(e) => setReportMethod(e.target.value)} className="w-4 h-4 text-blue-600" /> 印刷</label>
                             <label className="flex items-center gap-2 text-sm"><input type="radio" name="reportMethod" value="電子メール" checked={reportMethod === '電子メール'} onChange={(e) => setReportMethod(e.target.value)} className="w-4 h-4 text-blue-600" /> 電子メール</label>
                         </div>
