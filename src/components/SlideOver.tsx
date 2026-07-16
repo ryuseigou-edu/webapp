@@ -13,7 +13,7 @@ interface SlideOverProps {
     footer?: ReactNode;
     widthClass?: string;
     // 追加: スクロール位置をリセットするトリガーとなる依存変数
-    resetScrollDependency?: any;
+    resetScrollDependency?: never;
 }
 
 const SlideOver: FC<SlideOverProps> = ({
