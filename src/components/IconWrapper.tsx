@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC, ReactNode } from 'react';
 import {
     FiAlertTriangle, FiBox, FiBriefcase, FiPhone, FiEdit, FiMenu,
     FiFileText, FiCheckSquare, FiDatabase, FiArrowRight, FiGrid,
@@ -11,8 +11,8 @@ interface IconProps {
     className?: string;
 }
 
-const IconWrapper: React.FC<IconProps> = ({ name, className = "" }) => {
-    const icons: Record<IconName, React.ReactNode> = {
+const IconWrapper: FC<IconProps> = ({ name, className = "" }) => {
+    const icons: Record<IconName, ReactNode> = {
         fault: <FiAlertTriangle className={className} />,
         product: <FiBox className={className} />,
         company: <FiBriefcase className={className} />,

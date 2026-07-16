@@ -1,10 +1,20 @@
 import { useState, useMemo } from 'react';
+import type { FC } from 'react';
 import IconWrapper from './components/IconWrapper';
 import PortalDashboard from './components/PortalDashboard';
 import ModernTroubleSearch from './components/ModernTroubleSearch';
 import type { FaultData, IconName } from './types';
 
-const SidebarItem = ({ icon, label, isActive, onClick, isOpen, badge }: { icon: IconName, label: string, isActive: boolean, onClick: () => void, isOpen: boolean, badge?: number }) => (
+interface SidebarItemProps {
+  icon: IconName;
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+  isOpen: boolean;
+  badge?: number;
+}
+
+const SidebarItem: FC<SidebarItemProps> = ({ icon, label, isActive, onClick, isOpen, badge }) => (
     <button onClick={onClick} className={`w-full flex items-center p-3 rounded-xl transition-all duration-200 ${isActive ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}`}>
       <IconWrapper name={icon} className={`w-5 h-5 ${isActive ? 'text-blue-600' : ''}`} />
       {isOpen && <span className="ml-3 text-sm flex-1 text-left">{label}</span>}
@@ -15,6 +25,17 @@ const SidebarItem = ({ icon, label, isActive, onClick, isOpen, badge }: { icon: 
 export default function AppContainer() {
   const [currentScreen, setCurrentScreen] = useState<string>('portal');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // 通知（トースト）メッセージの状態管理
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // 通知を表示し、3秒後に消去する関数
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
+  };
 
   const [faults, setFaults] = useState<FaultData[]>([
     {
@@ -117,6 +138,8 @@ export default function AppContainer() {
 
   return (
       <div className="flex h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden">
+
+        {/* サイドバー */}
         <aside className={`${isSidebarOpen ? 'w-64' : 'w-20'} transition-all duration-300 bg-white border-r border-slate-200 flex flex-col z-20`}>
           <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200">
             {isSidebarOpen && <span className="font-black text-xl tracking-tight text-slate-800">SYS<span className="text-blue-600">ADMIN</span></span>}
@@ -134,6 +157,7 @@ export default function AppContainer() {
           </nav>
         </aside>
 
+        {/* メインビュー */}
         <main className="flex-1 flex flex-col h-full relative overflow-hidden">
           <header className="h-16 bg-white/90 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 z-10">
             <div className="flex items-center bg-slate-100 rounded-lg px-3 py-1.5 w-64 border border-slate-200 focus-within:border-blue-400 transition-colors">
@@ -141,6 +165,13 @@ export default function AppContainer() {
               <input type="text" placeholder="全体検索..." className="bg-transparent border-none outline-none text-sm w-full text-slate-800 placeholder-slate-400" />
             </div>
             <div className="flex items-center gap-4">
+              {/* ヘッダ領域に表示されるトースト通知 */}
+              {toastMessage && (
+                  <div className="animate-in slide-in-from-right-4 fade-in duration-300 flex items-center bg-slate-800 text-white px-4 py-2 rounded-lg shadow-md border border-slate-700 gap-2 mr-2">
+                    <IconWrapper name="contract" className="text-emerald-400 w-4 h-4" />
+                    <span className="font-bold text-sm">{toastMessage}</span>
+                  </div>
+              )}
               <button className="relative p-2 text-slate-500 hover:text-slate-800 transition">
                 <IconWrapper name="bell" className="w-5 h-5" />
                 {activeFaultsCount > 0 && <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>}
@@ -148,13 +179,14 @@ export default function AppContainer() {
             </div>
           </header>
 
+          {/* コンテンツ領域 */}
           <div className="flex-1 overflow-y-auto p-8 relative">
             <div className="max-w-7xl mx-auto">
               {currentScreen === 'portal' && (
                   <PortalDashboard onNavigate={setCurrentScreen} activeFaultsCount={activeFaultsCount} />
               )}
               {currentScreen === 'trouble_search' && (
-                  <ModernTroubleSearch faults={faults} setFaults={setFaults} />
+                  <ModernTroubleSearch faults={faults} setFaults={setFaults} onShowToast={showToast} />
               )}
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import IconWrapper from './IconWrapper';
 import type { MenuAction } from '../types';
 
@@ -7,7 +7,7 @@ interface PortalDashboardProps {
     activeFaultsCount: number;
 }
 
-const PortalDashboard: React.FC<PortalDashboardProps> = ({ onNavigate, activeFaultsCount }) => {
+const PortalDashboard: FC<PortalDashboardProps> = ({ onNavigate, activeFaultsCount }) => {
     const menuItems: MenuAction[] = [
         {
             id: 'sub-03',
@@ -47,7 +47,7 @@ const PortalDashboard: React.FC<PortalDashboardProps> = ({ onNavigate, activeFau
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {menuItems.map((item) => (
-                    <div key={item.id} onClick={() => onNavigate(item.targetScreen)} className={`bg-white border rounded-3xl p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 transform hover:-translate-y-1 ${item.colSpan} ${item.accentColor}`}>
+                    <div key={item.id} onClick={() => onNavigate(item.targetScreen)} className={`bg-white border rounded-3xl p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 transform hover:-translate-y-1 ${item.colSpan}${item.accentColor}`}>
                         <div>
                             <div className="flex items-start justify-between mb-4">
                                 <div className="bg-slate-100 text-slate-600 p-3 rounded-2xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
