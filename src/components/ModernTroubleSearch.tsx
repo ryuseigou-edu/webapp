@@ -375,8 +375,8 @@ const ModernTroubleSearch: FC<ModernTroubleSearchProps> = ({ faults, setFaults, 
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-2">原因特定情報</label>
                                     <div className="flex gap-4">
-                                        <label className="flex items-center gap-2 text-sm"><input type="radio" name="causeIdentified" value="特定あり" checked={registerForm.causeIdentified === '特定あり'} onChange={e => setRegisterForm({...registerForm, causeIdentified: e.target.value})} className="w-4 h-4 text-blue-600" /> 特定あり</label>
-                                        <label className="flex items-center gap-2 text-sm"><input type="radio" name="causeIdentified" value="特定なし" checked={registerForm.causeIdentified === '特定なし'} onChange={e => setRegisterForm({...registerForm, causeIdentified: e.target.value})} className="w-4 h-4 text-blue-600" /> 特定なし</label>
+                                        <label className="flex items-center gap-2 text-sm"><input type="radio" name="causeIdentified" value="特定" checked={registerForm.causeIdentified === '特定'} onChange={e => setRegisterForm({...registerForm, causeIdentified: e.target.value})} className="w-4 h-4 text-blue-600" /> 特定</label>
+                                        <label className="flex items-center gap-2 text-sm"><input type="radio" name="causeIdentified" value="特定できない" checked={registerForm.causeIdentified === '特定できない'} onChange={e => setRegisterForm({...registerForm, causeIdentified: e.target.value})} className="w-4 h-4 text-blue-600" /> 特定できない</label>
                                     </div>
                                 </div>
                             </div>
